@@ -1,20 +1,16 @@
 import React, { useState } from "react"
-import { StyleSheet, Text, View, FlatList } from "react-native"
+import { StyleSheet, View, FlatList, Text } from "react-native"
+import { v4 } from "uuid"
 import Header from "./components/Header"
 import Todo from "./components/Todo"
 import AddTodo from "./components/AddTodo"
 
 export default function App() {
-  let [todos, setTodos] = useState([
-    { key: "1", task: "Task 1" },
-    { key: "2", task: "Task 1" },
-    { key: "3", task: "Task 3" },
-    { key: "4", task: "Task 4" }
-  ])
+  let [todos, setTodos] = useState([])
 
-  const handlePressTodo = key => setTodos(todos.filter(t => t.key !== key))
+  const handlePressTodo = key => setTodos(todos.filter(t => t._id !== key))
   const addTask = task => {
-    setTodos([{ task, key: Date.now() * Date.now() }, ...todos])
+    setTodos([{ task, _id: v4() }, ...todos])
   }
   return (
     <View style={styles.container}>
@@ -22,12 +18,19 @@ export default function App() {
       <View style={styles.content}>
         <AddTodo addTask={addTask} />
         <View style={styles.list}>
-          <FlatList
-            data={todos}
-            renderItem={({ item }) => (
-              <Todo handlePressTodo={handlePressTodo} item={item} />
-            )}
-          />
+          {todos.length ? (
+            <FlatList
+              keyExtractor={i => i._id}
+              data={todos}
+              renderItem={({ item }) => (
+                <Todo handlePressTodo={handlePressTodo} item={item} />
+              )}
+            />
+          ) : (
+            <View>
+              <Text style={styles.noTodo}>😱 কোন কাজ এখনো যুক্ত করা হয়নি</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -44,5 +47,9 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 15
+  },
+  noTodo: {
+    textAlign: "center",
+    marginTop: 55
   }
 })
